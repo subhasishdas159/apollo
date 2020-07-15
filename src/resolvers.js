@@ -6,14 +6,17 @@ const pubsub = new PubSub();
 const resolvers = {
   Subscription: {
     postAdded: {
-      // Additional event labels can be passed to asyncIterator creation
       subscribe: () => pubsub.asyncIterator([POST_ADDED]),
     },
   },
   Query: {
-    posts(root, args, context) {
-      return postController.posts();
+    async posts(root, args, {dataSources}) {
+      // return await dataSources.users.getUser("5f085417004bc39100aae0b6");
+      return await dataSources.users.updateUserName("5f085417004bc39100aae0b6", "from backend dataSources");
     },
+    hello: () => ("hello planet"),
+    hey: () => ("hey okay"),
+    hi: () => ("hi okay with scope")
   },
   Mutation: {
     addPost(root, args, context) {
@@ -21,6 +24,10 @@ const resolvers = {
       return postController.addPost(args);
     },
   },
+
+  k: {
+    value: () => ("hello k")
+  }
 };
 
 const books = [
