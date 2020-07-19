@@ -1,34 +1,34 @@
 const { gql } = require('apollo-server');
 
 const typeDefs = gql`
-  directive @upper on FIELD_DEFINITION
-  directive @replace(replacement: String) on FIELD_DEFINITION
-  directive @hasScope(scope: String) on FIELD_DEFINITION
-
-  type Subscription {
-    postAdded: Post
-  }
+  directive @auth(requires: String) on FIELD_DEFINITION
 
   type Query {
-    posts: [Post]
-    hello: String @upper
-    hey: k @replace(replacement: "hey superman")
-    hi: String @hasScope(scope: "read:users")
+    hi: UserResponse @auth(requires: "aa")
+    getAllUsers: [user!] @auth(requires: "admin")
+    refreshToken: String! @auth
   }
 
   type Mutation {
-    addPost(author: String, comment: String): Post
+  	createUser(name: String!, email: ID!, password: String!): UserResponse!
+  	loginUser(email: ID!, password: String!): UserResponse!
+  }
+  
+
+
+  type user {
+  	name: String!
+  	email: ID!
   }
 
-  type Post {
-    author: String
-    comment: String
-    postName: String
+  type UserResponse {
+    name: String
+    email: ID
+    _id: ID
+    accessToken: String
+    refreshToken: String
   }
 
-  type k {
-    value: String @replace(replacement: "K changed")
-  }
 `
 
 module.exports = typeDefs

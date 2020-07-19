@@ -3,7 +3,7 @@ const { MongoClient } = require('mongodb')
 
 require('dotenv/config')
 
-const client = new MongoClient('mongodb://localhost:27017/xyforums', { useUnifiedTopology: true })
+const client = new MongoClient('mongodb://localhost:27017/pizza', { useUnifiedTopology: true })
 client.connect()
 
 const typeDefs = require('./src/typeDefs.graphql');
@@ -11,25 +11,23 @@ const resolvers = require('./src/resolvers');
 
 const Users = require('./dataSources/users')
 
-const UpperCaseDirective = require('./directives/upper')
-const ReplaceCaseDirective = require('./directives/replace')
-const HasScopeCaseDirective = require('./directives/hasScope')
+const AuthDirective = require('./directives/auth')
 
 const server = new ApolloServer({ 
 	typeDefs, 
-	resolvers, 
-  context: ({req}) => {
+	resolvers,
+	context: ({req}) => {
     return {
-    	token: req.headers.authorizarion
+      _id: req.headers._id,
+    	accessToken: req.headers.access,
+      refreshToken: req.headers.refresh
     }
   },
   dataSources: () => ({
-    users: new Users(client.db().collection('posts'))
+    usersApi: new Users(client.db().collection('users'))
   }),
   schemaDirectives: {
-    upper: UpperCaseDirective,
-    replace: ReplaceCaseDirective,
-    hasScope: HasScopeCaseDirective
+    auth: AuthDirective
   }
 });
 
